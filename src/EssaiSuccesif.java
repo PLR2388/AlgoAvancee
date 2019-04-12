@@ -31,33 +31,27 @@ public class EssaiSuccesif {
             }
             tab[j] = cle;
         }
-        cout=0;
+        cout=distance(1,8);
         ipred=1;
         X=new int[n];
+        X[0]=1;
+        X[n-1]=1;
         Y=new int[n];
+        Y[0]=1;
+        Y[n-1]=1;
 
     }
 
-    public double distance(int i,int j){
+    public double distance(int i,int j){ //i<j
         double distance=0;
-        if(i<j){
-            Point a=tab[i-1];
-            Point b=tab[j-1];
-            Point v=new Point(b.getx()-a.getx(),b.gety()-a.gety());
-            for (int k=(i-1);k<=(j-1);k++){
-                System.out.println("Point RANDOM=("+tab[k].getx()+","+tab[k].gety()+")");
-                System.out.println("POINT DEP=("+a.getx()+","+a.gety()+")");
-                System.out.println("Distance="+((tab[k].getx()-a.getx())*v.getx()+(tab[k].gety()-a.gety())*v.gety())/(Math.sqrt(v.getx()*v.getx()+v.gety()*v.gety())));
-                distance+=((tab[k].getx()-a.getx())*v.getx()+(tab[k].gety()-a.gety())*v.gety())/(Math.sqrt(v.getx()*v.getx()+v.gety()*v.gety()));
-            }
-        }
-        else{
-            Point a=tab[j-1];
-            Point b=tab[i-1];
-            Point v=new Point(b.getx()-a.getx(),b.gety()-a.gety());
-            for (int k=i;k<=j;k++){
-                distance+=((tab[k].getx()-a.getx())*v.getx()+(tab[k].gety()-a.gety())*v.gety())/(Math.sqrt(v.getx()*v.getx()+v.gety()*v.gety()));
-            }
+        Point a=tab[i-1];
+        Point b=tab[j-1];
+        double m=(b.gety()-a.gety())/(b.getx()-a.getx());
+        double p=(a.gety()-m*a.getx());
+        for (int k=(i-1);k<=(j-1);k++){
+            double yA=tab[k].gety();
+            double xA=tab[k].getx();
+            distance+=Math.abs(yA-m*xA-p)/Math.sqrt(1+m*m);
         }
         return distance;
 
@@ -65,16 +59,22 @@ public class EssaiSuccesif {
 
     public static void main(String arg[]){
         EssaiSuccesif essaiSuccesif=new EssaiSuccesif(8);
-        System.out.println(essaiSuccesif.distance(1,4));
+        essaiSuccesif.appligbri(2);
+        for(int i=0;i<8;i++){
+            System.out.println("Y["+i+"]="+essaiSuccesif.Y[i]);
+        }
     }
 
 
     public boolean satisfaisait(int xi){
+        System.out.println("SATISFAISANT");
+        System.out.println(xi+" est valide");
         return true;
     }
 
     public boolean soltrouvee(int i){
-        if(i==n-1){
+        if(i==n-2){
+            System.out.println("SOLTROUVEE");
             return true;
         }
         else{
@@ -83,6 +83,7 @@ public class EssaiSuccesif {
     }
 
     public boolean optimal(){
+        System.out.println("OPTIMAL");
         if(cout<coutopt){
             return true;
         }
@@ -92,14 +93,20 @@ public class EssaiSuccesif {
     }
 
     public void enregistrer(int xi,int i){
+        System.out.println("ENREGISTREMENT");
         X[i]=xi;
-        //cout=cout+xi*distance(ipred,i);
+        cout=cout+xi*distance(ipred,i);
+        System.out.println("cout courant="+cout);
     }
 
     public void majvalopt(){
+        System.out.println("MAJVALOPT");
+        System.out.println("Nouvelle Solution:");
         for(int i=0;i<n;i++){
             Y[i]=X[i];
+            System.out.print(Y[i]);
         }
+        System.out.println("");
         coutopt=cout;
     }
 
@@ -108,12 +115,16 @@ public class EssaiSuccesif {
             return false;
         }
         else{
+            System.out.println("ENCOREPOSSIBLE");
+            System.out.println("CoutOpt="+coutopt+" Cout courant="+cout);
             return true;
         }
     }
 
     public void defaire(int i,int xi){
-       // cout=cout-xi*distance(ipred,i);
+        System.out.println("DEFAIRE");
+       cout=cout-xi*distance(ipred,i);
+       System.out.println("Nouveau cout="+cout);
     }
 
 
@@ -121,16 +132,20 @@ public class EssaiSuccesif {
         for(int j=0;j<2;j++){
             if(satisfaisait(j)){
                 enregistrer(j,i);
-                if(soltrouvee(i)){
-                    if(optimal()){
+                if(soltrouvee(i)) {
+                    if (optimal()) {
                         majvalopt();
                     }
-                    else{
-                        if(optencorepossible()){
-                            appligbri(i+1);
+                }
+                else{
+                    if(optencorepossible()){
+                        if(j*i!=0){
+                            ipred=j*i;
                         }
+                        appligbri(i+1);
                     }
                 }
+                defaire(i,j);
             }
         }
     }
