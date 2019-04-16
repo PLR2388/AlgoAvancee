@@ -1,20 +1,19 @@
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Set;
 
 public class EssaiSuccesif {
-    private int n;              //Nombre de ligne brisé
+    private int n;              //Nombre de points
     private double coutopt;     //Cout optimal
     private int X[];            //Solution courante
     private Point tab[];        //Liste des points
     private double cout;        //Cout courant
-    private int ipred;          //i précédent
     private int Y[];            //Solution optimal
     private double C;           //Poids arbitraire
 
     public EssaiSuccesif(int n,double C){
         this.n=n;
         this.C=C;
-        coutopt=999999999.;
         int j=0;
         tab=new Point[n];
         Set<Point> points=Parser.recuperePoints();
@@ -33,23 +32,24 @@ public class EssaiSuccesif {
             }
             tab[j] = cle;
         }
-        cout=C;
-        ipred=0;
+        cout=0;
         X=new int[n];
         X[0]=1;
         X[n-1]=1;
         Y=new int[n];
         Y[0]=1;
         Y[n-1]=1;
-
+        coutopt=distance(0,n-1)+C;
     }
 
-    public double nbSegment(){
-        int som=0;
-        for (int i=0;i<X.length;i++){
-            som+=X[i];
+
+    public int ipred(int i){
+        for(int j=(i-1);j>=0;j--){
+            if(X[j]==1){
+                return j;
+            }
         }
-        return som-1;
+        return 0;
     }
 
     public double distance(int i,int j){ //i<j
@@ -75,6 +75,8 @@ public class EssaiSuccesif {
 
         }
         System.out.println("cout_opt="+essaiSuccesif.coutopt);
+        System.out.println("FORCE BRUTE");
+       essaiSuccesif.force_brute();
     }
 
 
@@ -95,6 +97,7 @@ public class EssaiSuccesif {
     }
 
     public boolean optimal(){
+        cout=cout+distance(ipred(n-1),n-1)+C;
         System.out.println("cout="+cout);
         if(cout<coutopt){
             System.out.println("OPTIMAL");
@@ -108,7 +111,7 @@ public class EssaiSuccesif {
     public void enregistrer(int xi,int i){
         System.out.println("ENREGISTREMENT");
         X[i]=xi;
-        cout=cout+xi*distance(ipred,i)+xi*C;
+        cout=cout+xi*distance(ipred(i),i)+xi*C;
         System.out.println("cout courant="+cout);
     }
 
@@ -136,7 +139,7 @@ public class EssaiSuccesif {
 
     public void defaire(int i,int xi){
         System.out.println("DEFAIRE");
-       cout=cout-xi*distance(ipred,i)-xi*C;
+        cout=cout-xi*distance(ipred(i),i)-xi*C;
        System.out.println("Nouveau cout="+cout);
     }
 
@@ -146,23 +149,18 @@ public class EssaiSuccesif {
             if(satisfaisait(j)){
                 enregistrer(j,i);
                 if(soltrouvee(i)) {
-                    if(cout==C){
-                        cout=distance(0,n-1)+C;
-                    }
                     if (optimal()) {
                         majvalopt();
                     }
-                    if(cout==distance(0,n-1)+C){
-                        cout=C;
-                    }
-
+                    cout=cout-distance(ipred(n-1),n-1)-C;
                 }
                 else{
                     if(optencorepossible()){
-                        if(j*i!=0){
+                      /*  if(j*i!=0){
                             ipred=j*i;
                             System.out.println("ipred="+ipred);
-                        }
+                        }*/
+                        System.out.println("ipred="+ipred(i));
                         appligbri(i+1);
                     }
                 }
@@ -171,6 +169,60 @@ public class EssaiSuccesif {
         }
     }
 
+    /*************************BRUTE FORCE*****************************/
+
+    public int[] binaire(int x){
+        int taille=(int)Math.ceil(Math.log(x)/Math.log(2));
+        int tab[]=new int[6];
+        int i=1;
+        while(x!=0){
+            if(x%2==1){
+                tab[6-i]=1;
+            }
+            x=x/2;
+            i++;
+        }
+        return tab;
+    }
+
+    public void force_brute(){
+        coutopt=999999999;
+        for(int k=0;k<=Math.pow(2,6)-1;k++){
+            //System.out.println("Nombre="+k);
+            cout=0;
+            int lol[]=binaire(k);
+            LinkedList<Integer> positionUn=new LinkedList<Integer>();
+            positionUn.add(0);
+            for(int j=0;j<lol.length;j++){
+                X[j+1]=lol[j];
+                if(lol[j]==1){
+                    positionUn.add(j+1);
+                }
+            }
+            positionUn.add(n-1);
+            for(int j=0;j<positionUn.size()-1;j++){
+               // System.out.println("("+positionUn.get(j)+","+positionUn.get(j+1)+")");
+                cout+=distance(positionUn.get(j),positionUn.get(j+1))+C;
+            }
+            //System.out.println("cout="+cout);
+            //for(int i=0;i<8;i++){
+              //  System.out.print(X[i]);
+            //}
+           // System.out.println("");
+            if(cout<coutopt){
+                coutopt=cout;
+                for (int j=0;j<X.length;j++){
+                    Y[j]=X[j];
+                }
+            }
+
+        }
+        for(int i=0;i<8;i++){
+            System.out.println("Y["+i+"]="+Y[i]);
+
+        }
+        System.out.print("coutopt="+coutopt);
+    }
 
 
 
