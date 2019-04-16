@@ -33,8 +33,8 @@ public class EssaiSuccesif {
             }
             tab[j] = cle;
         }
-        cout=0;
-        ipred=1;
+        cout=C;
+        ipred=0;
         X=new int[n];
         X[0]=1;
         X[n-1]=1;
@@ -54,11 +54,11 @@ public class EssaiSuccesif {
 
     public double distance(int i,int j){ //i<j
         double distance=0;
-        Point a=tab[i-1];
-        Point b=tab[j-1];
+        Point a=tab[i];
+        Point b=tab[j];
         double m=(b.gety()-a.gety())/(b.getx()-a.getx());
         double p=(a.gety()-m*a.getx());
-        for (int k=(i-1);k<=(j-1);k++){
+        for (int k=i;k<=j;k++){
             double yA=tab[k].gety();
             double xA=tab[k].getx();
             distance+=Math.abs(yA-m*xA-p)/Math.sqrt(1+m*m);
@@ -69,10 +69,12 @@ public class EssaiSuccesif {
 
     public static void main(String arg[]){
         EssaiSuccesif essaiSuccesif=new EssaiSuccesif(8,1.5);
-        essaiSuccesif.appligbri(2);
+        essaiSuccesif.appligbri(1);
         for(int i=0;i<8;i++){
             System.out.println("Y["+i+"]="+essaiSuccesif.Y[i]);
+
         }
+        System.out.println("cout_opt="+essaiSuccesif.coutopt);
     }
 
 
@@ -93,7 +95,6 @@ public class EssaiSuccesif {
     }
 
     public boolean optimal(){
-        cout+=nbSegment()*C;
         System.out.println("cout="+cout);
         if(cout<coutopt){
             System.out.println("OPTIMAL");
@@ -107,7 +108,7 @@ public class EssaiSuccesif {
     public void enregistrer(int xi,int i){
         System.out.println("ENREGISTREMENT");
         X[i]=xi;
-        cout=cout+xi*distance(ipred,i);
+        cout=cout+xi*distance(ipred,i)+xi*C;
         System.out.println("cout courant="+cout);
     }
 
@@ -135,7 +136,7 @@ public class EssaiSuccesif {
 
     public void defaire(int i,int xi){
         System.out.println("DEFAIRE");
-       cout=cout-xi*distance(ipred,i);
+       cout=cout-xi*distance(ipred,i)-xi*C;
        System.out.println("Nouveau cout="+cout);
     }
 
@@ -145,21 +146,20 @@ public class EssaiSuccesif {
             if(satisfaisait(j)){
                 enregistrer(j,i);
                 if(soltrouvee(i)) {
-                    if(cout==0){
-                        cout=distance(1,n);
+                    if(cout==C){
+                        cout=distance(0,n-1)+C;
                     }
                     if (optimal()) {
                         majvalopt();
                     }
-                    if(cout==distance(1,n)+C*nbSegment()){
-                        cout=0;
+                    if(cout==distance(0,n-1)+C){
+                        cout=C;
                     }
 
                 }
                 else{
                     if(optencorepossible()){
                         if(j*i!=0){
-
                             ipred=j*i;
                             System.out.println("ipred="+ipred);
                         }
