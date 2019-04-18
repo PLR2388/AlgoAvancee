@@ -1,4 +1,5 @@
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -68,14 +69,23 @@ public class EssaiSuccesif {
     }
 
     public static void main(String arg[]){
-        EssaiSuccesif essaiSuccesif=new EssaiSuccesif(8,1.5);
+        EssaiSuccesif essaiSuccesif=new EssaiSuccesif(20,1.5);
         essaiSuccesif.appligbri(1);
-        for(int i=0;i<8;i++){
-            System.out.println("Y["+i+"]="+essaiSuccesif.Y[i]);
-
+        Set<Point> points=new HashSet<Point>();
+        Set<Ligne> lignes=new HashSet<Ligne>();
+        int iprede=0;
+        for(int i=0;i<essaiSuccesif.n;i++){
+            points.add(essaiSuccesif.tab[i]);
+            if(essaiSuccesif.Y[i]==1){
+                if(i!=iprede){
+                    Ligne l=new Ligne(essaiSuccesif.tab[iprede],essaiSuccesif.tab[i]);
+                    iprede=i;
+                    lignes.add(l);
+                }
+            }
         }
-        System.out.println("cout_opt="+essaiSuccesif.coutopt);
-        System.out.println("FORCE BRUTE");
+        Visu v=new Visu(points,lignes,"Essai successif : coutopt="+essaiSuccesif.coutopt);
+       System.out.println("FORCE BRUTE");
        essaiSuccesif.force_brute();
     }
 
@@ -156,10 +166,6 @@ public class EssaiSuccesif {
                 }
                 else{
                     if(optencorepossible()){
-                      /*  if(j*i!=0){
-                            ipred=j*i;
-                            System.out.println("ipred="+ipred);
-                        }*/
                         System.out.println("ipred="+ipred(i));
                         appligbri(i+1);
                     }
@@ -172,12 +178,11 @@ public class EssaiSuccesif {
     /*************************BRUTE FORCE*****************************/
 
     public int[] binaire(int x){
-        int taille=(int)Math.ceil(Math.log(x)/Math.log(2));
-        int tab[]=new int[6];
+        int tab[]=new int[n-2];
         int i=1;
         while(x!=0){
             if(x%2==1){
-                tab[6-i]=1;
+                tab[n-2-i]=1;
             }
             x=x/2;
             i++;
@@ -187,7 +192,7 @@ public class EssaiSuccesif {
 
     public void force_brute(){
         coutopt=999999999;
-        for(int k=0;k<=Math.pow(2,6)-1;k++){
+        for(int k=0;k<=Math.pow(2,n-2)-1;k++){
             //System.out.println("Nombre="+k);
             cout=0;
             int lol[]=binaire(k);
@@ -217,11 +222,23 @@ public class EssaiSuccesif {
             }
 
         }
-        for(int i=0;i<8;i++){
+        Set<Point> points=new HashSet<Point>();
+        Set<Ligne> lignes=new HashSet<Ligne>();
+        int iprede=0;
+        for(int i=0;i<n;i++){
             System.out.println("Y["+i+"]="+Y[i]);
-
+            points.add(tab[i]);
+            if(Y[i]==1){
+                if(i!=iprede){
+                    Ligne l=new Ligne(tab[iprede],tab[i]);
+                    iprede=i;
+                    lignes.add(l);
+                }
+            }
         }
+        Visu v=new Visu(points,lignes,"FORCE BRUTE : coutopt="+coutopt);
         System.out.print("coutopt="+coutopt);
+
     }
 
 
