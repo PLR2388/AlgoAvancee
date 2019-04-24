@@ -69,8 +69,10 @@ public class EssaiSuccesif {
     }
 
     public static void main(String arg[]){
-        EssaiSuccesif essaiSuccesif=new EssaiSuccesif(20,1.5);
+        EssaiSuccesif essaiSuccesif=new EssaiSuccesif(8,1.5);
+        long debut = System.currentTimeMillis();
         essaiSuccesif.appligbri(1);
+        System.out.println("Durée d'exécution en miliseconde d'essai successif:"+(System.currentTimeMillis()-debut));
         Set<Point> points=new HashSet<Point>();
         Set<Ligne> lignes=new HashSet<Ligne>();
         int iprede=0;
@@ -85,20 +87,34 @@ public class EssaiSuccesif {
             }
         }
         Visu v=new Visu(points,lignes,"Essai successif : coutopt="+essaiSuccesif.coutopt);
-       System.out.println("FORCE BRUTE");
+      /* System.out.println("FORCE BRUTE");
+       debut=System.currentTimeMillis();
        essaiSuccesif.force_brute();
+        System.out.println("Durée d'exécution en milisecondes de force brute:"+(System.currentTimeMillis()-debut));
+        points=new HashSet<Point>();
+        lignes=new HashSet<Ligne>();
+        iprede=0;
+        for(int i=0;i<essaiSuccesif.n;i++){
+            points.add(essaiSuccesif.tab[i]);
+            if(essaiSuccesif.Y[i]==1){
+                if(i!=iprede){
+                    Ligne l=new Ligne(essaiSuccesif.tab[iprede],essaiSuccesif.tab[i]);
+                    iprede=i;
+                    lignes.add(l);
+                }
+            }
+        }
+        v=new Visu(points,lignes,"FORCE BRUTE : coutopt="+essaiSuccesif.coutopt);
+        System.out.print("coutopt="+essaiSuccesif.coutopt);*/
     }
 
 
     public boolean satisfaisait(int xi){
-        System.out.println("SATISFAISANT");
-        System.out.println(xi+" est valide");
         return true;
     }
 
     public boolean soltrouvee(int i){
         if(i==n-2){
-            System.out.println("SOLTROUVEE");
             return true;
         }
         else{
@@ -108,9 +124,7 @@ public class EssaiSuccesif {
 
     public boolean optimal(){
         cout=cout+distance(ipred(n-1),n-1)+C;
-        System.out.println("cout="+cout);
         if(cout<coutopt){
-            System.out.println("OPTIMAL");
             return true;
         }
         else{
@@ -119,38 +133,28 @@ public class EssaiSuccesif {
     }
 
     public void enregistrer(int xi,int i){
-        System.out.println("ENREGISTREMENT");
         X[i]=xi;
         cout=cout+xi*distance(ipred(i),i)+xi*C;
-        System.out.println("cout courant="+cout);
     }
 
     public void majvalopt(){
-        System.out.println("MAJVALOPT");
-        System.out.println("Nouvelle Solution:");
         for(int i=0;i<n;i++){
             Y[i]=X[i];
-            System.out.print(Y[i]);
         }
-        System.out.println("");
         coutopt=cout;
     }
 
-    public boolean optencorepossible(){
+    public boolean optencorepossible(int i){
         if (cout>coutopt){
             return false;
         }
         else{
-            System.out.println("ENCOREPOSSIBLE");
-            System.out.println("CoutOpt="+coutopt+" Cout_courant="+cout);
             return true;
         }
     }
 
     public void defaire(int i,int xi){
-        System.out.println("DEFAIRE");
         cout=cout-xi*distance(ipred(i),i)-xi*C;
-       System.out.println("Nouveau cout="+cout);
     }
 
 
@@ -165,8 +169,7 @@ public class EssaiSuccesif {
                     cout=cout-distance(ipred(n-1),n-1)-C;
                 }
                 else{
-                    if(optencorepossible()){
-                        System.out.println("ipred="+ipred(i));
+                    if(optencorepossible(i+1)){
                         appligbri(i+1);
                     }
                 }
@@ -193,7 +196,6 @@ public class EssaiSuccesif {
     public void force_brute(){
         coutopt=999999999;
         for(int k=0;k<=Math.pow(2,n-2)-1;k++){
-            //System.out.println("Nombre="+k);
             cout=0;
             int lol[]=binaire(k);
             LinkedList<Integer> positionUn=new LinkedList<Integer>();
@@ -206,14 +208,8 @@ public class EssaiSuccesif {
             }
             positionUn.add(n-1);
             for(int j=0;j<positionUn.size()-1;j++){
-               // System.out.println("("+positionUn.get(j)+","+positionUn.get(j+1)+")");
                 cout+=distance(positionUn.get(j),positionUn.get(j+1))+C;
             }
-            //System.out.println("cout="+cout);
-            //for(int i=0;i<8;i++){
-              //  System.out.print(X[i]);
-            //}
-           // System.out.println("");
             if(cout<coutopt){
                 coutopt=cout;
                 for (int j=0;j<X.length;j++){
@@ -222,22 +218,7 @@ public class EssaiSuccesif {
             }
 
         }
-        Set<Point> points=new HashSet<Point>();
-        Set<Ligne> lignes=new HashSet<Ligne>();
-        int iprede=0;
-        for(int i=0;i<n;i++){
-            System.out.println("Y["+i+"]="+Y[i]);
-            points.add(tab[i]);
-            if(Y[i]==1){
-                if(i!=iprede){
-                    Ligne l=new Ligne(tab[iprede],tab[i]);
-                    iprede=i;
-                    lignes.add(l);
-                }
-            }
-        }
-        Visu v=new Visu(points,lignes,"FORCE BRUTE : coutopt="+coutopt);
-        System.out.print("coutopt="+coutopt);
+
 
     }
 
