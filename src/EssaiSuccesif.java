@@ -12,16 +12,22 @@ public class EssaiSuccesif {
     private int Y[];            //Solution optimal
     private double C;           //Poids arbitraire
 
-    public EssaiSuccesif(int n,double C){
-        this.n=n;
+    /**
+     * Constructeur de Essai Successif
+     * Elle permet de charger les points dans la structure de données
+     * @param C correspond à la valeur arbitraire que l'on veut donner à chaque segment
+     */
+    public EssaiSuccesif(double C){
         this.C=C;
         int j=0;
-        tab=new Point[n];
         Set<Point> points=Parser.recuperePoints();
+        this.n=points.size();
+        tab=new Point[n];
         for(Point p: points){
             tab[j]=p;
             j++;
         }
+        /****************TRI DES POINTS PAR ABSCISSE CROISSANTE****************/
         int i;
         Point cle;
         for (i = 1; i < tab.length; i++) {
@@ -33,17 +39,24 @@ public class EssaiSuccesif {
             }
             tab[j] = cle;
         }
+        /***********************************************************************/
+        /********************INITIALISATION DES VARIABLES***********************/
         cout=0;
         X=new int[n];
         X[0]=1;
         X[n-1]=1;
         Y=new int[n];
-        Y[0]=1;
+        Y[0]=1;                             //On initialise la solution optimale à la corde reliant le premier et le dernier point
         Y[n-1]=1;
         coutopt=distance(0,n-1)+C;
+        /***********************************************************************/
     }
 
-
+    /**
+     *  Ipred retourne le dernier point choisi avant le point d'abscisse i
+     * @param i l'abscisse du point en cours d'étude
+     * @return un entier représentant l'abscisse du dernier point choisi avant i sinon 0 par défaut
+     */
     public int ipred(int i){
         for(int j=(i-1);j>=0;j--){
             if(X[j]==1){
@@ -53,6 +66,12 @@ public class EssaiSuccesif {
         return 0;
     }
 
+    /**
+     * Distance calcule la distance des points par rapport au segment dont les extrémités sont les points d'abscisse i et j.
+     * @param i abscisse d'un point tel que i<j
+     * @param j abscisse d'un point tel que i<j
+     * @return un réel étant la somme des distances des points par rapport au segment
+     */
     public double distance(int i,int j){ //i<j
         double distance=0;
         Point a=tab[i];
@@ -69,10 +88,11 @@ public class EssaiSuccesif {
     }
 
     public static void main(String arg[]){
-        EssaiSuccesif essaiSuccesif=new EssaiSuccesif(8,1.5);
+        EssaiSuccesif essaiSuccesif=new EssaiSuccesif(1.5);
         long debut = System.currentTimeMillis();
-        essaiSuccesif.appligbri(1);
+        essaiSuccesif.appligbri(1); //On étudie les points du 2ème à l'avant-dernier puisqu'on est sûr de prendre le premier et le dernier
         System.out.println("Durée d'exécution en miliseconde d'essai successif:"+(System.currentTimeMillis()-debut));
+        /***PREPARATION POUR AFFICHAGE***/
         Set<Point> points=new HashSet<Point>();
         Set<Ligne> lignes=new HashSet<Ligne>();
         int iprede=0;
@@ -87,10 +107,14 @@ public class EssaiSuccesif {
             }
         }
         Visu v=new Visu(points,lignes,"Essai successif : coutopt="+essaiSuccesif.coutopt);
-      /* System.out.println("FORCE BRUTE");
+        /*******************************/
+
+        //Partie permettant de lancer la méthode de brute force
+     /* System.out.println("FORCE BRUTE");
        debut=System.currentTimeMillis();
        essaiSuccesif.force_brute();
-        System.out.println("Durée d'exécution en milisecondes de force brute:"+(System.currentTimeMillis()-debut));
+        System.out.println("Durée d'exécution en milisecondes de force brute:"+(System.currentTimeMillis()-debut));*
+
         points=new HashSet<Point>();
         lignes=new HashSet<Ligne>();
         iprede=0;
@@ -108,11 +132,20 @@ public class EssaiSuccesif {
         System.out.print("coutopt="+essaiSuccesif.coutopt);*/
     }
 
-
+    /**
+     * Fonction indiquant si la solution xi est possible
+     * @param xi vaut 0 ou 1 en fonction si on prend ou pas le point
+     * @return vrai car cela reste une solution même si elle n'est pas forcément optimale
+     */
     public boolean satisfaisait(int xi){
         return true;
     }
 
+    /**
+     * Fonction vérifiant si on a trouvé une solution
+     * @param i l'abscisse du point que l'on vient de fixé
+     * @return  vrai si on vient de décider le sort du point n-2 sinon faux. En effet, on a alors parcouru l'ensemble des points
+     */
     public boolean soltrouvee(int i){
         if(i==n-2){
             return true;
@@ -122,8 +155,12 @@ public class EssaiSuccesif {
         }
     }
 
+    /**
+     * Fonction qui indique si on a trouvé une meilleure solution
+     * @return  vrai si la solution est meilleure
+     */
     public boolean optimal(){
-        cout=cout+distance(ipred(n-1),n-1)+C;
+        cout=cout+distance(ipred(n-1),n-1)+C; //Ajoute le segment reliant le dernier point choisi et le point n
         if(cout<coutopt){
             return true;
         }
@@ -132,11 +169,19 @@ public class EssaiSuccesif {
         }
     }
 
+    /**
+     * Enregistre le choix du point et le cout actuel
+     * @param xi 0 ou 1 si on a pris le point i
+     * @param i abscisse du point à enregistrer
+     */
     public void enregistrer(int xi,int i){
         X[i]=xi;
         cout=cout+xi*distance(ipred(i),i)+xi*C;
     }
 
+    /**
+     * Met à jour le vecteur représentant la solution optimale
+     */
     public void majvalopt(){
         for(int i=0;i<n;i++){
             Y[i]=X[i];
@@ -144,8 +189,13 @@ public class EssaiSuccesif {
         coutopt=cout;
     }
 
+    /**
+     * Fonction indiquant si on peut encore espérer battre l'optimal courant
+     * @param i entier représentant l'abscisse du point en cours d'étude
+     * @return
+     */
     public boolean optencorepossible(int i){
-        if (cout>coutopt){
+        if (cout+minrestant(i)>coutopt){        //Ajout d'une fonction qui minimise le coût restant
             return false;
         }
         else{
@@ -153,11 +203,29 @@ public class EssaiSuccesif {
         }
     }
 
+    /**
+     * Fonction calculant une valeur minimale entre le point actuel et le point final
+     * @param i l'abscisse du point actuel
+     * @return
+     */
+    public double minrestant(int i){
+        double distance=distance(i,n-1)/(n-i);
+        return distance;
+    }
+
+    /**
+     * Fonction opposée à enregistrer qui diminue le coût actuel
+     * @param i l'abscisse du point en cours d'étude
+     * @param xi 0 ou 1 en fonction si on a pris le point ou pas
+     */
     public void defaire(int i,int xi){
         cout=cout-xi*distance(ipred(i),i)-xi*C;
     }
 
-
+    /**
+     * Procédure principal de la méthode avec essai successif
+     * @param i indique le point d'abscisse en cours d'étude
+     */
     public void appligbri(int i){
         for(int j=0;j<2;j++){
             if(satisfaisait(j)){
@@ -180,6 +248,11 @@ public class EssaiSuccesif {
 
     /*************************BRUTE FORCE*****************************/
 
+    /**
+     * Convertit un entier sous forme décimal en sa forme binaire en renvoyant un tableau de 0 et 1
+     * @param x un entier positif
+     * @return un tableau représentant la forme binaire du nombre en entrée
+     */
     public int[] binaire(int x){
         int tab[]=new int[n-2];
         int i=1;
@@ -193,22 +266,25 @@ public class EssaiSuccesif {
         return tab;
     }
 
+    /**
+     * Teste l'ensemble des solutions possibles une par une sans élagage
+     */
     public void force_brute(){
         coutopt=999999999;
-        for(int k=0;k<=Math.pow(2,n-2)-1;k++){
-            cout=0;
+        for(int k=0;k<=Math.pow(2,n-2)-1;k++){                  //On parcout l'ensemble des solutions possibles
+            cout=0;                                             //Cela correspond à parcourir l'ensemble des représentations binaires de 0 à 2^(n-2)
             int lol[]=binaire(k);
             LinkedList<Integer> positionUn=new LinkedList<Integer>();
             positionUn.add(0);
             for(int j=0;j<lol.length;j++){
                 X[j+1]=lol[j];
-                if(lol[j]==1){
+                if(lol[j]==1){                                  //Stocke les abscisses des points des points qu'on prend
                     positionUn.add(j+1);
                 }
             }
             positionUn.add(n-1);
             for(int j=0;j<positionUn.size()-1;j++){
-                cout+=distance(positionUn.get(j),positionUn.get(j+1))+C;
+                cout+=distance(positionUn.get(j),positionUn.get(j+1))+C;    //Le coût correspond à la somme des distances des points par rapport à leur segment respective + C car on ajoute un segment
             }
             if(cout<coutopt){
                 coutopt=cout;
