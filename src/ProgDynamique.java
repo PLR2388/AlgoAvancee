@@ -1,68 +1,60 @@
 import java.util.Set;
+public class ProgDynamique{
 
-import static jdk.nashorn.internal.objects.Global.print;
-
-public class ProgDynamique {
-
-    static Point[] S;
+    Point[] S;
     double matrice[][];
     int n;
     double C;
-    Point tab[];
-    double cout_opt;
-
-    public ProgDynamique(Point[] S,double C,int n){
-        matrice= new double[n][n];
+    /**
+     * Constructeur de ProgDynamique
+     * Elle permet de calculer dynamiquement la valeur de approx(1,n)
+     * @param C correspond à la valeur arbitraire que l'on veut donner à chaque segment
+     */
+    public ProgDynamique(double C){
         this.C=C;
-        this.n=n;
 
-        initMatrice();
-        remplissageMatrice(this.S,this.C,this.matrice,this.n);
-        System.out.println("2");
-        approx_opt();
-        System.out.println("3");
+        /****************CREATION DU JEU DE POINTS****************/
+        creerJeuPointsDynamique();
 
+        this.n = S.length;
+        matrice= new double[n][n];
+
+        /****************REMPLISSAGE DE LA MATRICE DES COÛTS OPTIMAUX****************/
+        remplissageMatrice();
+
+        /****************AFFICHAGE DU COÛT OPTIMAL****************/
+        System.out.println(this.matrice[0][n-1]);
     }
-
-    public void initMatrice(){ //validé
-        int compteur=0;
-        for(int i=0;i<this.matrice.length;i++) {
-            for (int j = 0; j < this.matrice[0].length; j++) {
-                compteur=compteur+1;
-                this.matrice[i][j]=0;
-            }
-        }
-    }
-
-    public void approx_opt(){
-        this.cout_opt=this.matrice[0][n-1];
-    }
-
-    public void remplissageMatrice(Point[] S,double C, double[][] matrice, int n){
-        System.out.println("debut remplissage matrice,"+n);
-
-        for(int j=1;j<n;j++){
-            System.out.println("premiere boucle");
-            for(int i=0;i<n-j;i++){
-                System.out.println("seconde boucle");
-                double min=distance(i+1,i+j+1,S)+C;
-                //System.out.println("distance entre("+(i+1)+","+(i+j+1)+")="+(distance(i+1,i+j+1,S)+C));
+    /**
+     * Procédure de remplissage de la matrice des coûts optimaux
+     * Elle permet d'obtenir le coefficient M_i,_j = approx-opt(i,j)
+     */
+    public void remplissageMatrice(){
+        /***Parcours des n-2 diaonales supérieures de la matrice à remplir***/
+        for(int j=1;j<this.n;j++){
+            /***Parcours des n-j-1 coefficient de chacunes des diagonales à remplir***/
+            for(int i=0;i<this.n-j;i++){
+                /***Initialisation du minimum à SD_i,_i+j + C***/
+                double min=distance(i+1,i+j+1,this.S)+this.C;
+                /***Calcul des j-1 sommes et remplacement du minimum si l'une des sommes est plus petite***/
                 for(int k=i+1;k<j+i;k++){
-                    double challenger=matrice[i][k]+matrice[k][i+j];
-                    //System.out.println("j="+j+"|i="+i+"|k="+k);
-                    //System.out.println("matrice["+i+"]["+k+"]="+matrice[i][k]+"|matrice["+k+"]["+(i+j)+"]="+matrice[k][i+j]);
-                    //System.out.println("Le challenger est:"+challenger+" et le min est:"+min);
+                    double challenger=this.matrice[i][k]+this.matrice[k][i+j];
                     if (challenger<min) {
                         min = challenger;
                     }
                 }
-                //System.out.println(min);
-                //System.out.println("i="+i+"|j="+(j+i));
-                matrice[i][i+j]=min;
+                /***Initialisation du coefficient avec le minimum trouvé***/
+                this.matrice[i][i+j]=min;
             }
         }
     }
-
+    /**
+     * Distance calcule la distance des points par rapport au segment dont les extrémités sont les points d'abscisse i et j.
+     * @param i abscisse d'un point tel que i<j
+     * @param j abscisse d'un point tel que i<j
+     * @param S jeu de points
+     * @return un réel étant la somme des distances des points par rapport au segment
+     */
     public static double distance(int i,int j, Point[] S){ //i<j
         double distance=0;
         Point a=S[i-1];
@@ -77,31 +69,30 @@ public class ProgDynamique {
         return distance;
 
     }
-
-    public static Point[] creerJeuPoints(int n){
+    /**
+     * CreerJeuPointsDynamique créer le jeu de points S à partir d'un fichier .txt contenant les coordonnées de chacun des points
+     */
+    public void creerJeuPointsDynamique(){
         int j=0;
-        S=new Point[n];
         Set<Point> points=Parser.recuperePoints();
+        this.S=new Point[points.size()];
         for(Point p: points){
-            S[j]=p;
+            this.S[j]=p;
             j++;
         }
         int i;
         Point cle;
-        for (i = 1; i < S.length; i++) {
-            cle = S[i];
+        for (i = 1; i < this.S.length; i++) {
+            cle = this.S[i];
             j = i;
-            while ((j >= 1) && (S[j - 1].getx() > cle.getx())) {
-                S[j]  = S[j - 1] ;
+            while ((j >= 1) && (this.S[j - 1].getx() > cle.getx())) {
+                this.S[j]  = this.S[j - 1] ;
                 j = j - 1;
             }
-            S[j] = cle;
+            this.S[j] = cle;
         }
-        return S;
     }
-
     public static void main(String arg[]){
-        System.out.println((new ProgDynamique(creerJeuPoints(8),1.5,8).cout_opt));
-
+       new ProgDynamique(1.5);
     }
 }
