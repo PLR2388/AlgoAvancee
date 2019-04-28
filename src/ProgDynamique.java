@@ -35,7 +35,7 @@ public class ProgDynamique{
             /***Parcours des n-j-1 coefficient de chacunes des diagonales à remplir***/
             for(int i=0;i<this.n-j;i++){
                 /***Initialisation du minimum à SD_i,_i+j + C***/
-                double min=distance(i+1,i+j+1,this.S)+this.C;
+                double min=distance(i+1,i+j+1)+this.C;
                 /***Calcul des j-1 sommes et remplacement du minimum si l'une des sommes est plus petite***/
                 for(int k=i+1;k<j+i;k++){
                     double challenger=this.matrice[i][k]+this.matrice[k][i+j];
@@ -52,10 +52,9 @@ public class ProgDynamique{
      * Distance calcule la distance des points par rapport au segment dont les extrémités sont les points d'abscisse i et j.
      * @param i abscisse d'un point tel que i<j
      * @param j abscisse d'un point tel que i<j
-     * @param S jeu de points
      * @return un réel étant la somme des distances des points par rapport au segment
      */
-    public static double distance(int i,int j, Point[] S){ //i<j
+    public double distance(int i,int j){ //i<j
         double distance=0;
         Point a=S[i-1];
         Point b=S[j-1];
