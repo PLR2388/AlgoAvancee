@@ -1,10 +1,18 @@
-Mini-Projet AlgoAvancee
+# Mini Project: Advanced Algorithms
 
+To run the **Successive Trials** algorithm, simply execute the `EssaiSuccesif.java` class from your preferred IDE, or use the following command in the current directory:
 
-Pour lancer l'algorithme EssaiSuccesif il suffit de run la classe EssaiSuccesif.java depuis votre IDE favori ou bien à l'aide de la commande: javac *.java puis EssaiSuccesif.java depuis le répertoire courant.
+```bash
+javac *.java
+java EssaiSuccesif
+```
 
-Pour lancer l'algorithme ProgDynamique il suffit de run la classe ProgDynamique.java depuis votre IDE favori ou bien à l'aide de la commande: javac *.java puis ProgDynamique.java depuis le répertoire courant.
+To run the **Dynamic Programming** algorithm, execute the `ProgDynamique.java` class similarly:
 
-auteurs: Paul-Louis Renard, Benjamin Pasco
+```bash
+javac *.java
+java ProgDynamique
+```
 
-
+### Authors
+Paul-Louis Renard, Benjamin Pasco
